@@ -37,7 +37,7 @@ def load_CIFAR10():
 
 
 def process_CIFAR10_data(num_training=49000, num_validation=1000, 
-    num_test=1000) -> tuple(np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    num_test=1000) -> tuple([np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]):
     """ Load the CIFAR-10 dataset from disk and perform preprocessing
 
     Args:
