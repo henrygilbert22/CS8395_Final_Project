@@ -62,6 +62,7 @@ class QuantumNetwork():
 		network_output = self.forward_pass(X)
 
 		loss = math_lib.cross_entropy_loss(network_output, y)
+		loss += regularization * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
 	def forward_pass(self, X: np.array) -> np.array:
 		""" Forward pass of the network.
