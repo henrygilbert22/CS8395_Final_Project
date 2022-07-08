@@ -1,3 +1,4 @@
+from matplotlib import mathtext
 import numpy as np
 from collections import defaultdict
 
@@ -105,7 +106,7 @@ class BaseNetwork():
 		W2, b2 = self.parameters['W2'], self.parameters['b2']
 		N, _ = X.shape
 
-		probabilities = self.softmax(layer_2_output)
+		probabilities = math_lib.softmax_activation(layer_2_output)
 
 		probabilities[(range(N), y)] -= 1
 		dZ2 = probabilities / N
@@ -137,13 +138,14 @@ class BaseNetwork():
 			list of predicted labels
 		"""
 
-		y_pred = [np.argmax(layer_2) for layer_2, _ in self.forward_pass(X)]
+        
+		y_pred = [np.argmax(layer_2) for  layer_2 in self.forward_pass(X)[0]]
 		return np.array(y_pred)
 
 
-	def train(self, X, y, X_val, y_val,
+	def train(self, X_train, y_train, X_val, y_val,
 				learning_rate=1e-3,
-				reg=5e-6, num_iters=100,
+				reg=5e-6, num_epochs=100,
 				batch_size=200, learning_rate_decay=0.95,
 				early_stopping=False, patience=3) -> None:
 		""" Train the network using stochastic gradient descent. Will update the weights and biases of the network
@@ -163,33 +165,32 @@ class BaseNetwork():
 			None
 		"""
 
-		train_size = X.shape[0]
+		train_size = X_train.shape[0]
 		iterations_per_epoch = max(train_size / batch_size, 1)
-
 		training_metrics = defaultdict(list)
 		
 		best_val_acc = 0
 		best_parameters = {}
 		num_increasing_epochs = 0
 
-		for it in range(num_iters):
+		for it in range(int(num_epochs*iterations_per_epoch)):
 
-			X_batch = X[np.random.choice(train_size, batch_size, replace=True)]	
-			y_batch = y[np.random.choice(train_size, batch_size, replace=True)]
+			X_batch = X_train[np.random.choice(train_size, batch_size, replace=True)]	
+			y_batch = y_train[np.random.choice(train_size, batch_size, replace=True)]
 
 			loss, layer_2_output, layer_1_output = self.compute_loss(X_batch, y_batch, reg)
-			training_metrics['loss_history'].append(loss)
 
 			self.compute_backward_prop(layer_2_output, layer_1_output, X_batch, y_batch, learning_rate, reg)
 
-			
 			if it % iterations_per_epoch == 0:
 
 				train_acc = (self.predict(X_batch) == y_batch).mean()
 				val_acc = (self.predict(X_val) == y_val).mean()
+				training_metrics['loss_history'].append(loss)
 				training_metrics['train_acc_history'].append(train_acc)
 				training_metrics['val_acc_history'].append(val_acc)
 
+				self.pretty_print_training_metrics(training_metrics, it/iterations_per_epoch)
 				learning_rate *= learning_rate_decay
 
 				if early_stopping:
@@ -214,3 +215,11 @@ class BaseNetwork():
 
 		self.parameters = best_parameters
 		return training_metrics
+
+	def pretty_print_training_metrics(self, training_metrics: dict, it: int):
+
+		print(f"*************** ITERATION: {it} ***************")
+		print(f"		Loss: {training_metrics['loss_history'][-1]}")
+		print(f"		Train Accuracy: {training_metrics['train_acc_history'][-1]}")
+		print(f"		Validation Accuracy: {training_metrics['val_acc_history'][-1]}")
+		print(f"***********************************************")

@@ -80,13 +80,13 @@ def process_CIFAR10_data(num_training=49000, num_validation=1000,
 def train_base_network():
 
     X_train, y_train, X_val, y_val, X_test, y_test = process_CIFAR10_data()
-    net = BaseNetwork(3072, 100, 10)
+    net = BaseNetwork(3072, 10, 50)
 
     training_metrics = net.train(X_train, y_train, X_val, y_val,
-                            num_iters=100, batch_size=200,
-                            learning_rate=1e-4, learning_rate_decay=0.95,
-                            reg=0.25)
-
+                            learning_rate=1e-4, reg=5e-6, num_epochs=100, 
+                            batch_size=200,learning_rate_decay=0.95,
+                            early_stopping=True, patience=5)
+                            
     create_training_graphs(training_metrics)
 
 
