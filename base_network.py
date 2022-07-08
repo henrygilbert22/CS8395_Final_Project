@@ -56,8 +56,8 @@ class BaseNetwork():
 			float of loss value
 		"""
 
-		W1, b1 = self.params['W1'], self.params['b1']
-		W2, b2 = self.params['W2'], self.params['b2']
+		W1, b1 = self.parameters['W1'], self.parameters['b1']
+		W2, b2 = self.parameters['W2'], self.parameters['b2']
 		N, D = X.shape
 
 		layer_2_output, layer_1_output = self.forward_pass(X)
@@ -77,8 +77,8 @@ class BaseNetwork():
 			list of output data
 		"""
 
-		W1, b1 = self.params['W1'], self.params['b1']
-		W2, b2 = self.params['W2'], self.params['b2']
+		W1, b1 = self.parameters['W1'], self.parameters['b1']
+		W2, b2 = self.parameters['W2'], self.parameters['b2']
 
 		layer_1_output = np.dot(X, W1) + b1
 		layer_1_output = math_lib.ReLU(layer_1_output)
@@ -101,8 +101,8 @@ class BaseNetwork():
 			None
 		"""
 
-		W1, b1 = self.params['W1'], self.params['b1']
-		W2, b2 = self.params['W2'], self.params['b2']
+		W1, b1 = self.parameters['W1'], self.parameters['b1']
+		W2, b2 = self.parameters['W2'], self.parameters['b2']
 		N, _ = X.shape
 
 		probabilities = self.softmax(layer_2_output)
@@ -169,7 +169,7 @@ class BaseNetwork():
 		training_metrics = defaultdict(list)
 		
 		best_val_acc = 0
-		best_params = {}
+		best_parameters = {}
 		num_increasing_epochs = 0
 
 		for it in range(num_iters):
@@ -198,19 +198,19 @@ class BaseNetwork():
 
 						best_val_acc = val_acc
 						num_increasing_epochs = 0
-						for k, v in self.params.items():
-							best_params[k] = v.copy()
+						for k, v in self.parameters.items():
+							best_parameters[k] = v.copy()
 
 					else:
 
 						num_increasing_epochs += 1
 						if num_increasing_epochs == patience:
 
-							self.params = best_params
+							self.parameters = best_parameters
 							return training_metrics
 
 					
 
 
-		self.params = best_params
+		self.parameters = best_parameters
 		return training_metrics

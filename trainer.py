@@ -9,7 +9,7 @@ def load_data_batch(file_name: str):
 
     with open(file_name, 'rb') as f:
 
-        datadict = pickle.load(f)
+        datadict = pickle.load(f, encoding='latin1')
         
         X = datadict['data']
         Y = datadict['labels']
@@ -31,7 +31,7 @@ def load_CIFAR10():
 
     Xtr = np.concatenate(xs)
     Ytr = np.concatenate(ys)
-    Xte, Yte = load_data_batch(f"test.pkl")
+    Xte, Yte = load_data_batch(f"data/test.pkl")
     
     return Xtr, Ytr, Xte, Yte
 
