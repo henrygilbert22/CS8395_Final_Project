@@ -44,7 +44,7 @@ class QuantumNetwork():
 		self.parameters['W2'] = np.random.randn(self.hidden_size, self.output_size) * 1e-4
 		self.parameters['b2'] = np.zeros( self.output_size)
 
-	def compute_loss(self, X: np.array, y: list = [], regularization: float = 0.0) -> float:
+	def compute_loss(self, X: np.array, y: list, regularization: float = 0.0) -> float:
 		""" Compute the cross entropy loss for the network.
 		
 		Args:
@@ -58,3 +58,27 @@ class QuantumNetwork():
 		W1, b1 = self.params['W1'], self.params['b1']
 		W2, b2 = self.params['W2'], self.params['b2']
 		N, D = X.shape
+
+		network_output = self.forward_pass(X)
+
+		loss = math_lib.cross_entropy_loss(network_output, y)
+
+	def forward_pass(self, X: np.array) -> np.array:
+		""" Forward pass of the network.
+		
+		Args:
+			X: list of input data
+		
+		Returns:
+			list of output data
+		"""
+
+		W1, b1 = self.params['W1'], self.params['b1']
+		W2, b2 = self.params['W2'], self.params['b2']
+		N, D = X.shape
+
+		layer_1_output = np.dot(X, W1) + b1
+		layer_1_output = math_lib.ReLU(layer_1_output)
+		layer_2_output = np.dot(layer_1_output, W2) + b2
+		
+		return layer_2_output
