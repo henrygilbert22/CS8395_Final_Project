@@ -59,10 +59,12 @@ class QuantumNetwork():
 		W2, b2 = self.params['W2'], self.params['b2']
 		N, D = X.shape
 
-		network_output = self.forward_pass(X)
+		layer_2_output, layer_1_output = self.forward_pass(X)
 
-		loss = math_lib.cross_entropy_loss(network_output, y)
+		loss = math_lib.cross_entropy_loss(layer_2_output, y)
 		loss += regularization * (np.sum(W1 * W1) + np.sum(W2 * W2))
+
+		return loss, layer_2_output, layer_1_output
 
 	def forward_pass(self, X: np.array) -> np.array:
 		""" Forward pass of the network.
@@ -83,9 +85,9 @@ class QuantumNetwork():
 		
 		return layer_2_output, layer_1_output
 
-	def backward_pass(self, layer_2_output: np.array, layer_1_output: np.array, 
-		X: np.array, y: list, loss: float, learning_rate: float = 0.01, 
-		regularization: float = 0.0) -> None:
+	def compute_backward_prop(self, layer_2_output: np.array, layer_1_output: np.array, 
+		X: np.array, y: list, learning_rate: float, 
+		regularization: float) -> None:
 		""" Forward pass of the network.
 		
 		Args:
@@ -123,3 +125,52 @@ class QuantumNetwork():
 		self.parameters['b1'] -= learning_rate * db1[0]
 		self.parameters['W2'] -= learning_rate * dW2
 		self.parameters['b2'] -= learning_rate * db2[0]
+
+	def train(self, X, y, X_val, y_val,
+				learning_rate=1e-3,
+				reg=5e-6, num_iters=100,
+				batch_size=200, learning_rate_decay=0.95):
+		""" Train the network using stochastic gradient descent.
+		
+		Args:
+			X: list of input data
+			y: list of labels
+			learning_rate: float
+			learning_rate_decay: float
+			reg: float
+			num_iters: int
+			batch_size: int
+			verbose: bool
+		
+		Returns:
+			None
+		"""
+
+		train_size = X.shape[0]
+		iterations_per_epoch = max(train_size / batch_size, 1)
+
+		loss_history = []
+		train_acc_history = []
+		val_acc_history = []
+
+		for it in range(num_iters):
+
+			X_batch = X[np.random.choice(train_size, batch_size, replace=True)]	
+			y_batch = y[np.random.choice(train_size, batch_size, replace=True)]
+
+			loss, layer_2_output, layer_1_output = self.compute_loss(X_batch, y_batch, reg)
+			loss_history.append(loss)
+
+			self.compute_backward_prop(layer_2_output, layer_1_output, X_batch, y_batch, learning_rate, reg)
+
+			
+			if it % iterations_per_epoch == 0:
+
+				train_acc = (self.predict(X_batch) == y_batch).mean()
+				val_acc = (self.predict(X_val) == y_val).mean()
+				train_acc_history.append(train_acc)
+				val_acc_history.append(val_acc)
+
+				learning_rate *= learning_rate_decay
+
+
