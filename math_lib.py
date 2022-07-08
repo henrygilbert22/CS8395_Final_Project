@@ -41,5 +41,4 @@ def cross_entropy_loss(X: list, Y: list) -> float:
     p = softmax_activation(X)
     log_likelihood = -np.log(p[range(m), Y])
     loss = np.sum(log_likelihood) / m
-
     return loss
