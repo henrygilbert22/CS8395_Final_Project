@@ -8,7 +8,7 @@ from quantum_network import QuantumNetwork
 def run_base_network():
 
     training_data, validation_data, test_data = load_data_together()
-    net = BaseNetwork([784, 30, 10])
+    net = BaseNetwork([784, 30, 30, 10])
     net.SGD(training_data, 10, 10, 3.0, test_data=test_data)
 
 def load_data():
