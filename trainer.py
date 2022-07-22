@@ -1,9 +1,42 @@
 import pickle
 import gzip
 import numpy as np
+import os
 
 from base_network import BaseNetwork
 from quantum_network import QuantumNetwork
+from quantuminspire.credentials import save_account
+from quantuminspire.credentials import get_authentication
+from quantuminspire.qiskit import QI
+
+from qiskit import execute
+from qiskit.circuit import QuantumRegister, ClassicalRegister, QuantumCircuit
+
+def initialize_QI():
+    
+    os.environ['QI_TOKEN'] = 'eac3d1bca7ee7d56743cefdc238e9f7abdaf15e9'    
+    QI_URL = os.getenv('API_URL', 'https://api.quantum-inspire.com/')
+
+    project_name = 'Qiskit-entangle'
+    authentication = get_authentication()
+    
+    QI.set_authentication(authentication, QI_URL, project_name=project_name)
+    qi_backend = QI.get_backend('QX single-node simulator')
+    
+    q = QuantumRegister(2)
+    b = ClassicalRegister(2)
+    circuit = QuantumCircuit(q, b)
+
+    circuit.h(q[0])
+    circuit.cx(q[0], q[1])
+    circuit.measure(q, b)
+
+    qi_job = execute(circuit, backend=qi_backend, shots=256)
+    qi_result = qi_job.result()
+    histogram = qi_result.get_counts(circuit)
+    
+    print(histogram)
+
 
 def run_base_network():
 
@@ -35,7 +68,9 @@ def load_data_together():
     return (training_data, validation_data, testing_data)
 
 def main():
-    run_base_network()
+    
+    initialize_QI()
+    #run_base_network()
 
 
 if __name__ == '__main__':
