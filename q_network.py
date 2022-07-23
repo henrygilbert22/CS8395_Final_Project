@@ -18,7 +18,7 @@ import numpy as np
 from numbers import Integral
 from scipy.sparse import coo_matrix
 
-class CQNN(SamplingNeuralNetwork):
+class QNN(SamplingNeuralNetwork):
     
     _input_params: List[Parameter]
     _weight_params: List[Parameter]
@@ -42,6 +42,9 @@ class CQNN(SamplingNeuralNetwork):
         quantum_instance: QuantumInstance,
         input_gradients: bool = False,
         ) -> None:
+        """
+        
+        """
         
         self._input_params = list(input_params or [])
         self._weight_params = list(weight_params or [])
@@ -290,7 +293,7 @@ class QNNClassifier(TrainableModel, ClassifierMixin):
     
     def __init__(
         self,
-        neural_network: CQNN,
+        neural_network: QNN,
         optimizer: Optimizer,
     ):
         

@@ -9,7 +9,7 @@ from qiskit_machine_learning.neural_networks import CircuitQNN
 from qiskit_machine_learning.algorithms.classifiers import NeuralNetworkClassifier
 
 from base_network import BaseNetwork
-from q_network import CQNN, QNNClassifier
+from q_network import QNN, QNNClassifier
 
 def run_base_network():
 
@@ -45,33 +45,23 @@ def load_all_together(hot_encode: bool):
     
     return (training_data, validation_data, testing_data)
 
-def reduce_dimensionality(x):
+def load_q_data():
     
-    new = []
-    index_size = len(x)
-    chunk_size = int(index_size / 10)
+    num_inputs = 2
+    num_samples = 20
     
-    for i in range(0, index_size, chunk_size):
-        new.append(sum(x[i:i+chunk_size]) / chunk_size)
+    X = 2 * algorithm_globals.random.random([num_samples, num_inputs]) - 1
+    y01 = 1 * (np.sum(X, axis=1) >= 0)  # in { 0,  1}
     
-    return new
-        
-def load_all_togethe_q(hot_encode: bool):
-    
-    train, validate, test = load_data()
-    
-    train_x = [reduce_dimensionality(x) for x in train[0]]
-    train_y = [one_hot_encode(y) if hot_encode else y for y in train[1]]
-    
-    return np.array(train_x), np.array(train_y)
+    return X, y01
     
 def run_quantum_network():
     
-    num_inputs = 11
-    num_outputs = 10
+    num_inputs = 2
+    num_outputs = 2
     
-    train_X, train_y = load_all_togethe_q(hot_encode=False)
-
+    train_X, train_y = load_q_data()
+    
     quantum_instance = QuantumInstance(Aer.get_backend("aer_simulator"), shots=1024)
     feature_map = ZZFeatureMap(num_inputs)
     ansatz = RealAmplitudes(num_inputs, reps=1)
@@ -83,7 +73,7 @@ def run_quantum_network():
     def parity(x):
         return "{:b}".format(x).count("1") % 2
     
-    circuit_qnn = CQNN(
+    circuit_qnn = QNN(
         circuit=qc,
         input_params=feature_map.parameters,
         weight_params=ansatz.parameters,

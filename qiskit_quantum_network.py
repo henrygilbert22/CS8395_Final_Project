@@ -190,7 +190,8 @@ def mine_2():
 
 def main():
     #base()
-    mine()
+    #mine()
+    mine_2()
     
 if __name__ == "__main__":
     main()
